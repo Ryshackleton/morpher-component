@@ -43,9 +43,8 @@ class Morpher extends D3Component {
         margin = this.chartState.margin, // user requested margin or existing margin
         axesMargin = this.chartState.axesMargin, // user requested axesMargin or existing margin
       },
-      dataRequest,
     } = props;
-    if (!this.chartState || !chartRequest || !dataRequest) {
+    if (!this.chartState || !chartRequest) {
       return;
     }
     this.chartState = updatedDataState(
@@ -53,7 +52,6 @@ class Morpher extends D3Component {
       {
         ...this.chartState,
         chartRequest,
-        dataRequest,
         margin,
         axesMargin,
       },

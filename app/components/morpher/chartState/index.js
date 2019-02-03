@@ -26,8 +26,7 @@ export function newChartState(props) {
 
 export function updatedDataState(dom, chartState) {
   const {
-    dataRequest,
-    dataRequest: {
+    chartRequest: {
       seriesField,
       filterFunction,
     },
@@ -59,7 +58,6 @@ export function updatedDataState(dom, chartState) {
     colorScale,
     colorValueFromId,
     colorFromId,
-    dataRequest,
     dataFiltered,
     dataFilteredById,
     filteredDataIds,

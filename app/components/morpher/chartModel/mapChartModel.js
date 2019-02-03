@@ -13,11 +13,9 @@ import { chartShape } from '../constants';
 
 export default function mapChartModel(chartState) {
   const {
-    dataRequest: {
-      radiusField,
-    },
     chartRequest: {
       radiusRange = [2, 20],
+      radiusField,
     },
     colorScale,
     colorValueFromId,

@@ -26,12 +26,10 @@ const stackOrderMap = {
 
 export default function barChartModel(chartState) {
   const {
-    dataRequest: {
+    chartRequest: {
       seriesField,
       xField,
       yField,
-    },
-    chartRequest: {
       shape,
       xAxisTicks = 5,
       yAxisTicks = 5,

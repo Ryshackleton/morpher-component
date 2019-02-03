@@ -32,12 +32,10 @@ const paddedDomain = (domain, range, rangePadding) => {
 
 export default function bubbleChartModel(chartState) {
   const {
-    dataRequest: {
+    chartRequest: {
       xField,
       yField,
       radiusField,
-    },
-    chartRequest: {
       defaultRadius = 3,
       radiusRange = [2, 20],
       xAxisTicks = 5,

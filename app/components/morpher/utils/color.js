@@ -76,12 +76,10 @@ export function getColorScale(colorScaleType, domain, d3ColorScheme) {
 
 export const colorScaleProps = (props, seriesKeys, filtered, filteredById) => {
   const {
-    dataRequest: {
-      seriesField,
-      colorField,
-    },
     chartRequest: {
+      colorField,
       colorScaleD3Name,
+      seriesField,
     },
   } = props;
 
