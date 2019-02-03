@@ -19,6 +19,9 @@ export const buildIdToFeatureMap = ({
   dataByLocationId,
   locationIdField,
 }) => {
+  if (!topology && !topology.objects) {
+    return {};
+  }
   return reduce(topology.objects, (acc, layer) => {
     return {
       ...acc,

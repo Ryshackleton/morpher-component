@@ -15,7 +15,7 @@ const {
   TRANSITION_DURATION,
 } = defaults;
 
-export function svgInitialize(parentNode) {
+export function initialSVG(parentNode) {
   const svg = select(parentNode).append('svg');
   return {
     parent: parentNode,
@@ -198,11 +198,7 @@ export function legends(dom, chartState) {
     .text(legendTitle);
 }
 
-export function resetSvgTransforms(dom, chartState) {
-  const {
-    margin,
-    axesMargin,
-  } = chartState;
+export function updateSVGTransforms(dom, margin, axesMargin) {
   const {
     axesGroup,
     chartGroup,
@@ -236,4 +232,15 @@ export function resetSvgTransforms(dom, chartState) {
     'transform',
     `translate(${margin.left + axesMargin.left},${margin.top + axesMargin.top})`,
   );
+}
+
+export function getXYPixelRangesFromSVG(svg, margin, axesMargin) {
+  const { height, width } = svg.node().getBoundingClientRect();
+
+  return {
+    /** figure out pixel x/y space from the dom, chart space is transformed to within the axes
+     * bounds so it can have [0,0] as its starting coordinates */
+    xScaleRange: [0, width - margin.left - margin.right - axesMargin.left - axesMargin.right],
+    yScaleRange: [height - margin.top - margin.bottom - axesMargin.top - axesMargin.bottom, 0],
+  };
 }

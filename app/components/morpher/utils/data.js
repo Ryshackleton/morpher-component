@@ -1,4 +1,5 @@
 import { groupBy } from 'lodash';
+import { colorScaleProps } from './color';
 
 export const groupedDataProps = (filtered, seriesField) => {
   const bySeries = seriesField
@@ -9,15 +10,6 @@ export const groupedDataProps = (filtered, seriesField) => {
     bySeries,
     seriesKeys: Object.keys(bySeries),
   };
-};
-
-export const createMorphableIds = (data = []) => {
-  return data.map((datum, index) => {
-    return {
-      ...datum,
-      morphableId: index,
-    };
-  });
 };
 
 export const values = (array, field) => {
@@ -41,5 +33,47 @@ export const filteredDataProps = (data, filterFunction) => {
     dataFiltered,
     dataFilteredById,
     filteredDataIds,
+  };
+};
+
+export const updatedStateFromChartRequest = (dom, chartState) => {
+  const {
+    chartRequest: {
+      seriesField,
+      filterFunction,
+    },
+    chartRequest,
+    morphableRawData,
+  } = chartState;
+
+  /** filter according to data request */
+  const {
+    dataFiltered,
+    dataFilteredById,
+    filteredDataIds,
+  } = filteredDataProps(morphableRawData, filterFunction);
+
+  /** figure out the series */
+  const { seriesKeys } = groupedDataProps(dataFiltered, seriesField);
+
+  /** METHODS TO CONVERT MORPHABLE ID -> some value */
+  /** morphableId -> color, color value */
+  const {
+    colorScale,
+    colorValueFromId,
+    colorFromId,
+  } = colorScaleProps(chartState, seriesKeys, dataFiltered, dataFilteredById);
+
+  return {
+    ...chartState,
+    chartRequest,
+    colorScale,
+    colorValueFromId,
+    colorFromId,
+    dataFiltered,
+    dataFilteredById,
+    filteredDataIds,
+    morphablesDomGroup: dom.morphablesGroup, // needed by map component for projection transform
+    seriesKeys,
   };
 };
