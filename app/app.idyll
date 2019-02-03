@@ -1,0 +1,67 @@
+
+[meta title:'Idyll Template' description:'Morpher with World Happiness data' /]
+
+### Morpher with World Happiness data
+
+// Initialize data
+[data name:'worldHappinessByYear' /]
+[data name:'worldTopology' /]
+
+// Initialize variables 
+[var name:'chartShape' value:'MAP' /]
+[var name:'focusYear' value:'2016' /]
+[var name:'radius' value:'Log GDP per capita' /]
+[var name:'xAxis' value:'Log GDP per capita' /]
+[var name:'yAxis' value:'Life Ladder' /]
+
+// Selectors
+[Select value:chartShape options:`['BUBBLE_SCATTER', 'BAR_VERTICAL', 'BAR_HORIZONTAL', 'MAP', 'BUBBLE_CARTOGRAM', 'BUBBLE_PACKED_CARTOGRAM', 'HEXAGONAL_CARTOGRAM']` /]
+
+[Select value:yAxis options:`Object.keys(worldHappinessByYear[0]).filter((d) => (d !== 'country' && d !== 'loc_id' && d !== 'year'))` /]
+
+[Select value:xAxis options:`Object.keys(worldHappinessByYear[0]).filter((d) => (d !== 'country' && d !== 'loc_id' && d !== 'year'))` /] 
+
+[Select value:radius options:`Object.keys(worldHappinessByYear[0]).filter((d) => (d !== 'country' && d !== 'loc_id' && d !== 'year'))` /]
+
+// Morpher component
+[Morpher
+    className: 'morpher'
+    data: worldHappinessByYear
+    topology: worldTopology
+    fullWidth: true
+    locationIdField: 'loc_id'
+    chartRequest: `{
+        shape: chartShape,
+        morphableStrokeFunction: () => {
+          return 'darkgray';
+        },
+        morphableStrokeWidthFunction: () => {
+          return '1px';
+        },
+        morphableOpacityFunction: () => {
+          return '0.9';
+        },
+        barStackOrder: 'stackOrderDescending',
+        transitionDuration: 2500,
+//        transitionDelay: 300,
+//        animationOrder: 'ANIMATE_IN_SEQUENCE',
+//        animationSortField:'radius',
+        animationSortAscending:false,
+        radiusRange: chartShape === 'BUBBLE_SCATTER' ? [5,5] : [5,20],
+        hexRadius: 15,
+        legendTitle: radius,
+    }`
+    dataRequest:`{
+        filterFunction:(datum) => {
+          return _.has(datum, 'loc_id')
+            && datum.year === Number(focusYear)
+            && _.has(datum, xAxis)
+            && _.has(datum, yAxis);
+         },
+        seriesField:'loc_id',
+        colorField:radius,
+        xField:xAxis,
+        yField:yAxis,
+        radiusField:radius,
+    }`
+/]
