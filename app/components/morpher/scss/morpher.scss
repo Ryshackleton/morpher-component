@@ -1,0 +1,11 @@
+.morpher {
+  height: 80vh;
+}
+.morpher svg {
+  background: #e6e6e6;
+}
+
+@media all and (max-width: 1000px) {
+  .morpher svg {
+  }
+}
