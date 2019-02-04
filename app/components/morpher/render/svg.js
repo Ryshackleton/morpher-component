@@ -7,7 +7,9 @@ import { css } from '../constants';
  *   // axis group top,left is the top,left of the margins
  *   g.axesGroup { -> transform: { margin.left, margin.top }
  *    g.xAxis -> transform: { axesMargin.left, height - margin.bottom - axesMargin.bottom - margin.top }
+ *    g.xAxisLabel -> transform: { axesMargin.left, height - margin.bottom - axesMargin.bottom - margin.top }
  *    g.yAxis  -> transform: { axesMargin.left, axesMargin.top }
+ *    g.yAxisLabel  -> transform: { axesMargin.left, axesMargin.top }
  *   }
  *   // legend top, left is top, left of chart margin (not axis margin)
  *   // legends currently sit in the top axis space, horizontally
@@ -32,8 +34,12 @@ export function initialSVG(parentNode) {
     axesGroup: svg.append('g').attr('class', css.AXES),
     xAxis: svg.select(`g.${css.AXES}`)
       .append('g').attr('class', css.X_AXIS),
+    xAxisLabel: svg.select(`g.${css.AXES}`)
+      .append('g').attr('class', css.X_AXIS_LABEL),
     yAxis: svg.select(`g.${css.AXES}`)
       .append('g').attr('class', css.Y_AXIS),
+    yAxisLabel: svg.select(`g.${css.AXES}`)
+      .append('g').attr('class', css.Y_AXIS_LABEL),
     legendGroup: svg.append('g').attr('class', css.LEGEND_GROUP),
     bubbleLegend: svg.select(`g.${css.LEGEND_GROUP}`)
       .append('g').attr('class', css.BUBBLE_LEGEND),
@@ -58,7 +64,9 @@ export function updateSVGTransforms(dom, margin, axesMargin) {
     parent,
     svg,
     xAxis,
+    xAxisLabel,
     yAxis,
+    yAxisLabel,
   } = dom;
   const [width, height] = [parent.offsetWidth, parent.offsetHeight];
   svg
@@ -73,12 +81,14 @@ export function updateSVGTransforms(dom, margin, axesMargin) {
     `translate(${margin.left + axesMargin.left},${margin.top})`,
   );
 
-  xAxis.attr(
-    'transform',
-    `translate(${axesMargin.left},${height - margin.bottom - axesMargin.bottom - margin.top})`,
-  );
+  const xTrans = `translate(${axesMargin.left},\
+                  ${height - margin.bottom - axesMargin.bottom - margin.top})`;
+  xAxis.attr('transform', xTrans);
+  xAxisLabel.attr('transform', xTrans);
 
-  yAxis.attr('transform', `translate(${axesMargin.left}, ${axesMargin.top})`);
+  const yTrans = `translate(${axesMargin.left}, ${axesMargin.top})`;
+  yAxis.attr('transform', yTrans);
+  yAxisLabel.attr('transform', yTrans);
 
   chartGroup.attr(
     'transform',
