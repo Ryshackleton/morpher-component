@@ -60,6 +60,8 @@
         colorField:radius,
         xField:xAxis,
         yField:yAxis,
+        xAxisLabel: xAxis,
+        yAxisLabel: yAxis,
         radiusField:radius,
     }`
 /]
