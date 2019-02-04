@@ -1,4 +1,21 @@
 
+export const applyStyles = (selection, chartModel, chartRequest) => {
+  const { colorFromId } = chartModel;
+  const {
+    morphableStrokeFunction = () => {
+      return 'black';
+    },
+    morphableStrokeWidthFunction = () => {
+      return '1px';
+    },
+  } = chartRequest;
+
+  return selection
+    .style('stroke', morphableStrokeFunction)
+    .style('stroke-width', morphableStrokeWidthFunction)
+    .style('fill', colorFromId);
+};
+
 export const fadeOutTransition = (selection, duration = 1000) => {
   return selection.empty()
     ? selection
