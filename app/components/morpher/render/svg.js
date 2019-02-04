@@ -1,6 +1,29 @@
 import { select } from 'd3';
 import { css } from '../constants';
 
+/**
+ * Builds the basic structure of the svg as shown below
+ * parendNode.svg {
+ *   // axis group top,left is the top,left of the margins
+ *   g.axesGroup { -> transform: { margin.left, margin.top }
+ *    g.xAxis -> transform: { axesMargin.left, height - margin.bottom - axesMargin.bottom - margin.top }
+ *    g.yAxis  -> transform: { axesMargin.left, axesMargin.top }
+ *   }
+ *   // legend top, left is top, left of chart margin (not axis margin)
+ *   // legends currently sit in the top axis space, horizontally
+ *   // TODO: make this dynamic and customizable to allow for vertical legends
+ *   g.legendGroup { -> transform: { margin.left + axesMargin.left, margin.top }
+ *    g.bubbleLegend {}
+ *    g.colorLegend {}
+ *   }
+ *   // top left position is the top,left of axis group space
+ *   g.chartGroup { -> margin.left + axesMargin.left, margin.top + axesMargin.top
+ *     g.morphablesGroup -> no transform
+ *   }
+ * }
+ * @param parentNode {DOM node} - to append svg to
+ * @return {{colorLegend: *, parent: *, axesGroup: *, yAxis: *, bubbleLegend: *, xAxis: *, svg: *, legendGroup: *, morphablesGroup: *, chartGroup: *}} - object with properties representing d3.selections containing the g elements for for each of the groups above
+ */
 export function initialSVG(parentNode) {
   const svg = select(parentNode).append('svg');
   return {
@@ -21,6 +44,12 @@ export function initialSVG(parentNode) {
   };
 }
 
+/**
+ *
+ * @param dom {object} - dom object returned by initialSVG()
+ * @param margin {object} - outer margin object
+ * @param axesMargin {object} - axes margin object
+ */
 export function updateSVGTransforms(dom, margin, axesMargin) {
   const {
     axesGroup,
@@ -57,6 +86,16 @@ export function updateSVGTransforms(dom, margin, axesMargin) {
   );
 }
 
+/**
+ * Finds the x and y ranges of the available space in the morphables group, which is pre-transformed
+ * inside the axes
+ * @param svg {d3.selection} - representing the main svg for this component
+ * @param margin {object} - outer margin object { top, left, bottom, right }
+ * @param axesMargin {object} - axis margin object { top, left, bottom, right }
+ * @return {{yScaleRange: number[], xScaleRange: number[]}} - x and y ranges representing
+ *          the [0, inner chart width] and [inner chart height, 0] of the morphable space
+ *          (y is inverted because of the inverted svg coordinte scale)
+ */
 export function getXYPixelRangesFromSVG(svg, margin, axesMargin) {
   const { height, width } = svg.node().getBoundingClientRect();
 
