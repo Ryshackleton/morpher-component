@@ -71,7 +71,7 @@ export default function axes(dom, chartState) {
           .text(yAxisLabel || yField)
           .call(wrapY);
 
-        /* transition opacity back to showing axex */
+        /* transition opacity back to showing axes */
         dom.axesGroup
           .transition()
           .duration(transitionDuration / 2)
