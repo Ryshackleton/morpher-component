@@ -1,5 +1,5 @@
 import {
-  get, isEmpty, isNil, reduce,
+  get, isEmpty, isNil, keyBy, reduce, toArray,
 } from 'lodash';
 import {
   extent, scaleLinear, zoomIdentity,
@@ -33,25 +33,13 @@ export default function mapChartModel(chartState) {
   const height = yScaleRange[0] - yScaleRange[1];
   const width = xScaleRange[1] - xScaleRange[0];
 
-  const dataWithFeatures = [];
-  const dataIdsWithFeatures = [];
-  const features = dataFiltered.reduce((featureAcc, datum) => {
-    const { morphableId } = datum;
-    if (!isNil(idFeatureMap[morphableId])) {
-      dataIdsWithFeatures.push(morphableId);
-      dataWithFeatures.push(datum);
-      featureAcc.push(idFeatureMap[morphableId]);
-    }
-    return featureAcc;
-  }, []);
-
   /** build and scale the projection from the width, height, and the selected features */
   const {
     bounds: mapBounds,
     projection,
     zoomed,
   } = buildProjectionAndZoom({
-    features, width, height,
+    features: toArray(idFeatureMap), width, height,
   });
   /** call zoomed on the morphable dom group to handle scaling/simplification of features */
   morphablesDomGroup
@@ -69,7 +57,7 @@ export default function mapChartModel(chartState) {
 
   /** pre compute id -> centroids for tweening efficiency */
   // const zoomTransform = morphablesDomGroup.nodes()[0].__zoom; // hack to get the current zoom transform from the dom
-  const idCentroidMap = reduce(dataWithFeatures, (acc, datum) => {
+  const idCentroidMap = reduce(dataFiltered, (acc, datum) => {
     // TODO: figure out a way around the computationally expensive method: path.centroid()
     // TODO:  could use something like the method below, but need to work out the correct projection transform for a point
     // const { center } = calcViewbox({ projection, features: [idFeatureMap[datum.morphableId]] });
@@ -87,12 +75,12 @@ export default function mapChartModel(chartState) {
   /** pre-compute morphableId -> radius, radius value */
   const radiusUndefined = isEmpty(radiusField) || isNil(radiusField);
   const radiusScale = scaleLinear()
-    .domain(extent(values(dataWithFeatures, radiusField)))
+    .domain(extent(values(dataFiltered, radiusField)))
     .range(radiusRange);
   const radiusValueFromId = (id) => {
     return get(dataFilteredById, [id, radiusField], 0);
   };
-  const idRadiusMap = reduce(dataWithFeatures, (acc, datum) => {
+  const idRadiusMap = reduce(dataFiltered, (acc, datum) => {
     if (radiusUndefined) {
       const { bounds } = calcViewbox({ projection, features: [idFeatureMap[datum.morphableId]] });
       const boxWidth = bounds[1][0] - bounds[0][0];
@@ -118,7 +106,7 @@ export default function mapChartModel(chartState) {
     colorValueFromId,
     colorFromId,
     seriesKeys,
-    dataFiltered: dataWithFeatures,
-    filteredDataIds: dataIdsWithFeatures,
+    dataFiltered,
+    dataFilteredById: keyBy(dataFiltered, 'morphableId'),
   };
 }
