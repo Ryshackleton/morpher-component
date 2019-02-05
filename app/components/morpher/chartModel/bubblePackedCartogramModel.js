@@ -1,6 +1,6 @@
 import { get, keyBy } from 'lodash';
 import { chartShape } from '../constants';
-import mapChartModel from './mapChartModel';
+import bubbleCartogramModel from './bubbleCartogramChartModel';
 import { forcePackNodesToRadii } from '../utils';
 
 export default function bubblePackedCartogramChartModel(chartState) {
@@ -10,7 +10,7 @@ export default function bubblePackedCartogramChartModel(chartState) {
     xFromId: xUnpacked,
     yFromId: yUnpacked,
     ...rest
-  } = mapChartModel(chartState);
+  } = bubbleCartogramModel(chartState);
 
   const packedNodesMap = keyBy(forcePackNodesToRadii({
     maxTicks: 300,
