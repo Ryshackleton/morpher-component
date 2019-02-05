@@ -12,5 +12,5 @@ export default async function () {
     return name !== 'country';
   });
   return data.map(convertStringsToNumbersFunction(numericKeyNames))
-    .filter((datum) => { return !isNil(datum.loc_id) && datum.year > 2015; });
+    .filter((datum) => { return !isNil(datum.loc_id) && datum.year === 2016; });
 }
