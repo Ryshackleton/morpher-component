@@ -127,7 +127,7 @@ export default function barChartModel(chartState) {
   return {
     shape,
     seriesKeys,
-    filteredDataIds: Object.keys(stackedDataKeyedById).map(Number),
+    dataFilteredById: stackedDataKeyedById,
     xValueFromId: (id) => { return stackedDataKeyedById[id].xValue; },
     xFromId: (id) => { return stackedDataKeyedById[id].x; },
     yValueFromId: (id) => { return stackedDataKeyedById[id].yValue; },
