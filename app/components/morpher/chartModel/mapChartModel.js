@@ -6,7 +6,6 @@ import {
 } from 'd3';
 import {
   buildProjectionAndZoom,
-  calcViewbox,
   values,
 } from '../utils';
 import { chartShape } from '../constants';
@@ -81,13 +80,9 @@ export default function mapChartModel(chartState) {
     return get(dataFilteredById, [id, radiusField], 0);
   };
   const idRadiusMap = reduce(dataFiltered, (acc, datum) => {
-    if (radiusUndefined) {
-      const { bounds } = calcViewbox({ projection, features: [idFeatureMap[datum.morphableId]] });
-      const boxWidth = bounds[1][0] - bounds[0][0];
-      const boxHeight = bounds[1][1] - bounds[0][1];
-      acc[datum.morphableId] = (boxWidth + boxHeight) * 0.5;
+    if (!radiusUndefined) {
+      acc[datum.morphableId] = radiusScale(radiusValueFromId(datum.morphableId));
     }
-    acc[datum.morphableId] = radiusScale(radiusValueFromId(datum.morphableId));
     return acc;
   }, {});
 
