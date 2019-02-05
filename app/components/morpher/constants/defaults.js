@@ -5,4 +5,5 @@ export default Object.freeze({
   ANIMATE_ALL: 'ANIMATE_ALL',
   MAX_NUMBER_OF_PIECES_IN_PATH: 15,
   FLUBBER_INTERPOLATE_OPTIONS: { maxSegmentLength: 3, single: true },
+  DEFAULT_MISSING_COLOR: 'none',
 });
