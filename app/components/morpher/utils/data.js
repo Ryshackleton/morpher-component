@@ -1,5 +1,18 @@
-import { groupBy } from 'lodash';
+import { groupBy, isNil, isNaN } from 'lodash';
 import { colorScaleProps } from './color';
+
+export const dataWithValidGetterFunctions = (data, testFunctionArray) => {
+  return data.filter(({ morphableId }) => {
+    return testFunctionArray.reduce((acc, testFunction) => {
+      if (acc) {
+        const val = testFunction(morphableId);
+        /* eslint-disable-next-line no-param-reassign */
+        acc = !isNil(val) && !isNaN(val);
+      }
+      return acc;
+    }, true);
+  });
+};
 
 export const groupedDataProps = (filtered, seriesField) => {
   const bySeries = seriesField
@@ -27,14 +40,12 @@ const filteredDataProps = ({
   return morphableRawData.reduce((acc, datum) => {
     if (filterDataFunction(datum)) {
       acc.dataFiltered.push(datum);
-      acc.filteredDataIds.push(datum.morphableId);
       acc.dataFilteredById[datum.morphableId] = datum;
     }
     return acc;
   },
   { // acc
-    filteredDataIds: [],
-    dataFilteredById: [],
+    dataFilteredById: {},
     dataFiltered: [],
   });
 };
@@ -44,7 +55,6 @@ export const updatedStateFromChartRequest = (dom, chartState) => {
   const {
     dataFiltered,
     dataFilteredById,
-    filteredDataIds,
   } = filteredDataProps(chartState);
 
   /** figure out the series */
@@ -72,7 +82,6 @@ export const updatedStateFromChartRequest = (dom, chartState) => {
     colorFromId,
     dataFiltered,
     dataFilteredById,
-    filteredDataIds,
     morphablesDomGroup: dom.morphablesGroup, // needed by map component for projection transform
     seriesKeys,
   };
