@@ -1,4 +1,4 @@
-import { get } from 'lodash';
+import { get, isNaN, isNil, values } from 'lodash';
 import { chartShape } from '../constants';
 import mapChartModel from './mapChartModel';
 import { Layout, Point } from '../lib/HexLib';
@@ -24,6 +24,7 @@ export default function hexagonalPackedCartogramtModel(chartState) {
     },
   } = chartState;
   const {
+    dataFilteredById: oldDataById,
     dataFiltered: nodes,
     xFromId: xMapCentroid,
     yFromId: yMapCentroid,
@@ -34,13 +35,14 @@ export default function hexagonalPackedCartogramtModel(chartState) {
   const idCentroidMap = {};
 
   // nodes to "hex", or place into uniquely into the hexagonal grid
-  const unHexedNodes = nodes.map(({ morphableId }) => {
-    return {
-      morphableId,
-      x: xMapCentroid(morphableId),
-      y: yMapCentroid(morphableId),
-    };
-  })
+  const unHexedNodes = nodes.reduce((acc, { morphableId }) => {
+    const x = xMapCentroid(morphableId);
+    const y = yMapCentroid(morphableId);
+    if (!isNil(x) && !isNaN(x) && !isNil(y) && !isNaN(y)) {
+      acc.push({ morphableId, x, y });
+    }
+    return acc;
+  }, [])
     // sort by ascending x so we proceed in a consistent manner across the nodes
     .sort((a, b) => { return a.x - b.x; });
 
@@ -97,8 +99,15 @@ export default function hexagonalPackedCartogramtModel(chartState) {
 
   const radiusFromId = () => { return radius; };
 
+  const dataFilteredById = Object.keys(idCentroidMap).reduce((acc, morphableId) => {
+    acc[morphableId] = oldDataById[morphableId];
+    return acc;
+  }, {});
+
   return {
     ...rest,
+    dataFilteredById,
+    dataFiltered: values(dataFilteredById),
     shape: chartShape.HEXAGONAL_CARTOGRAM,
     xFromId,
     yFromId,
