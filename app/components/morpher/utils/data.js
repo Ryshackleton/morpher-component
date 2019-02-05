@@ -16,44 +16,44 @@ export const values = (array, field) => {
   return array.map((datum) => { return datum[field]; });
 };
 
-export const filteredDataProps = (data, filterFunction) => {
-  const filter = filterFunction || function filterNone() { return true; };
-  const filteredDataIds = [];
-  const dataFilteredById = {};
-  const dataFiltered = data.reduce((acc, datum) => {
-    if (filter(datum)) {
-      acc.push(datum);
-      filteredDataIds.push(datum.morphableId);
-      dataFilteredById[datum.morphableId] = datum;
+const filterNone = () => { return true; };
+
+const filteredDataProps = ({
+  chartRequest: {
+    filterDataFunction = filterNone,
+  },
+  morphableRawData,
+}) => {
+  return morphableRawData.reduce((acc, datum) => {
+    if (filterDataFunction(datum)) {
+      acc.dataFiltered.push(datum);
+      acc.filteredDataIds.push(datum.morphableId);
+      acc.dataFilteredById[datum.morphableId] = datum;
     }
     return acc;
-  }, []);
-
-  return {
-    dataFiltered,
-    dataFilteredById,
-    filteredDataIds,
-  };
+  },
+  { // acc
+    filteredDataIds: [],
+    dataFilteredById: [],
+    dataFiltered: [],
+  });
 };
 
 export const updatedStateFromChartRequest = (dom, chartState) => {
-  const {
-    chartRequest: {
-      seriesField,
-      filterFunction,
-    },
-    chartRequest,
-    morphableRawData,
-  } = chartState;
-
   /** filter according to data request */
   const {
     dataFiltered,
     dataFilteredById,
     filteredDataIds,
-  } = filteredDataProps(morphableRawData, filterFunction);
+  } = filteredDataProps(chartState);
 
   /** figure out the series */
+  const {
+    chartRequest: {
+      seriesField,
+    },
+    chartRequest,
+  } = chartState;
   const { seriesKeys } = groupedDataProps(dataFiltered, seriesField);
 
   /** METHODS TO CONVERT MORPHABLE ID -> some value */
