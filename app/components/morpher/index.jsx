@@ -51,20 +51,37 @@ class Morpher extends D3Component {
     );
 
     const {
-      margin = defaultMargins.margin,
       axesMargin = defaultMargins.axesMargin,
+      margin = defaultMargins.margin,
+      locationIdField = 'location_id',
+      topology,
+      hideFeaturesWithNoData = true,
     } = props;
+
+    const {
+      idFeatureMap,
+      dummyMorphableData,
+    } = createIdTopoJsonFeatureMap(
+      morphableRawData,
+      topology,
+      locationIdField,
+      hideFeaturesWithNoData,
+    );
 
     /* chart state initially contains the id'd data, and a map of id -> topojson features */
     this.chartState = {
+      // margins
       margin,
       axesMargin,
-      idFeatureMap: createIdTopoJsonFeatureMap(
-        morphableRawData,
-        props.topology,
-        props.locationIdField || 'location_id',
-      ),
+      // map of morphableId -> feature for quick lookup
+      idFeatureMap,
+      // the raw data, with morphableId
       morphableRawData,
+      // boolean to determine whether map features lacking data should be displayed
+      hideFeaturesWithNoData,
+      // array of dummy objects containing { morphableId, [locationIdField] }
+      // representing map features with no data
+      dummyMorphableData,
     };
 
     /* build the svg DOM */
