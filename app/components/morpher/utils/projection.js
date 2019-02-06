@@ -1,5 +1,5 @@
 import {
-  event, geoIdentity, geoPath, geoTransform, zoom,
+  event, geoIdentity, geoPath, geoTransform, zoom, zoomIdentity,
 } from 'd3';
 
 /**
@@ -137,4 +137,32 @@ export function buildProjectionAndZoom({ features, width, height }) {
     projection,
     zoomed,
   };
+}
+
+export function updatedProjection({
+  chartWidth: width,
+  chartHeight: height,
+  features,
+  morphablesDomGroup,
+}) {
+  /** build and scale the projection from the width, height, and the selected features */
+  const {
+    projection,
+    zoomed,
+  } = buildProjectionAndZoom({
+    features, width, height,
+  });
+
+  /** call zoomed on the morphable dom group to handle scaling/simplification of features */
+  morphablesDomGroup
+    .call(
+      zoomed.transform,
+      zoomIdentity.translate(
+        projection.translate[0],
+        projection.translate[1],
+      ).scale(projection.scale),
+    )
+    .call(zoomed);
+
+  return projection;
 }
