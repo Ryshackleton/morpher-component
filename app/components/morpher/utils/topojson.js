@@ -1,4 +1,4 @@
-import { get, isNil, reduce } from 'lodash';
+import { get, isNil, reduce, toArray } from 'lodash';
 import { feature } from 'topojson';
 import { groupedDataProps } from './data';
 
@@ -84,7 +84,7 @@ export const buildIdToFeatureMap = ({
       }, {}),
     };
   }, {});
-  return { idFeatureMap, dummyMorphableData };
+  return { features: toArray(idFeatureMap), idFeatureMap, dummyMorphableData };
 };
 
 export const createIdTopoJsonFeatureMap = (
