@@ -132,7 +132,6 @@ class Morpher extends D3Component {
     const projection = (chartWidth === oldWidth && chartHeight === oldHeight)
       ? oldProjection
       : updatedProjection({
-        ...xyAxisRanges,
         morphablesDomGroup: this.dom.morphablesGroup,
         chartWidth,
         chartHeight,
