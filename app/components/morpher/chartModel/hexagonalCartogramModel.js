@@ -1,6 +1,6 @@
 import { get, isNaN, isNil, values } from 'lodash';
 import { chartShape } from '../constants';
-import mapChartModel from './mapChartModel';
+import bubbleCartogramModel from './bubbleCartogramChartModel';
 import { Layout, Point } from '../lib/HexLib';
 
 // basic distance function
@@ -29,7 +29,7 @@ export default function hexagonalPackedCartogramtModel(chartState) {
     xFromId: xMapCentroid,
     yFromId: yMapCentroid,
     ...rest
-  } = mapChartModel(chartState);
+  } = bubbleCartogramModel(chartState, false);
 
   // map of morphableId -> { morphableId, x, y } to construct xFromId() and yFromId()
   const idCentroidMap = {};

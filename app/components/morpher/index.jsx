@@ -128,7 +128,7 @@ class Morpher extends D3Component {
     /* Update the svg group transforms */
     render.updateSVGTransforms(this.dom, margin, axesMargin);
 
-    /* update map projection if the chart dimensions have changed */
+    /* IF the chart dimensions have changed, update map projection */
     const projection = (chartWidth === oldWidth && chartHeight === oldHeight)
       ? oldProjection
       : updatedProjection({
