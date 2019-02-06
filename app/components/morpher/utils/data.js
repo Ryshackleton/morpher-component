@@ -82,7 +82,6 @@ export const updatedStateFromChartRequest = (dom, chartState) => {
     colorFromId,
     dataFiltered,
     dataFilteredById,
-    morphablesDomGroup: dom.morphablesGroup, // needed by map component for projection transform
     seriesKeys,
   };
 };

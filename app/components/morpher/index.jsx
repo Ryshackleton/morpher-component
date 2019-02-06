@@ -5,6 +5,7 @@ import * as render from './render';
 import {
   createIdTopoJsonFeatureMap,
   updatedStateFromChartRequest,
+  updatedProjection,
 } from './utils';
 
 import './scss/morpher.scss';
@@ -59,6 +60,7 @@ class Morpher extends D3Component {
     } = props;
 
     const {
+      features,
       idFeatureMap,
       dummyMorphableData,
     } = createIdTopoJsonFeatureMap(
@@ -70,11 +72,16 @@ class Morpher extends D3Component {
 
     /* chart state initially contains the id'd data, and a map of id -> topojson features */
     this.chartState = {
+      // inner chart dimensions (initialize to zero)
+      chartWidth: 0,
+      chartHeight: 0,
       // margins
       margin,
       axesMargin,
       // map of morphableId -> feature for quick lookup
       idFeatureMap,
+      // array of features to pass into projection
+      features,
       // the raw data, with morphableId
       morphableRawData,
       // boolean to determine whether map features lacking data should be displayed
@@ -102,20 +109,45 @@ class Morpher extends D3Component {
    * @return {undefined}
    */
   morph() {
-    const { margin, axesMargin } = this.chartState;
+    const {
+      chartWidth: oldWidth,
+      chartHeight: oldHeight,
+      features,
+      margin,
+      axesMargin,
+      projection: oldProjection,
+    } = this.chartState;
 
     /* Get the axis ranges in pixel space */
-    const xyAxisRanges = render.getXYPixelRangesFromSVG(this.dom.svg, margin, axesMargin);
+    const {
+      chartWidth,
+      chartHeight,
+      ...xyAxisRanges
+    } = render.getXYPixelRangesFromSVG(this.dom.svg, margin, axesMargin)
 
     /* Update the svg group transforms */
     render.updateSVGTransforms(this.dom, margin, axesMargin);
+
+    /* update map projection if the chart dimensions have changed */
+    const projection = (chartWidth === oldWidth && chartHeight === oldHeight)
+      ? oldProjection
+      : updatedProjection({
+        ...xyAxisRanges,
+        morphablesDomGroup: this.dom.morphablesGroup,
+        chartWidth,
+        chartHeight,
+        features,
+      });
 
     /* Update state */
     this.chartState = {
       ...this.chartState,
       ...xyAxisRanges,
-      margin,
       axesMargin,
+      chartWidth,
+      chartHeight,
+      margin,
+      projection,
     };
 
     /* Use the new chart state to morph the chart model (map, scatter, bar, etc) */

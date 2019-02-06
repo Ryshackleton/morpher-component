@@ -109,10 +109,15 @@ export function updateSVGTransforms(dom, margin, axesMargin) {
 export function getXYPixelRangesFromSVG(svg, margin, axesMargin) {
   const { height, width } = svg.node().getBoundingClientRect();
 
+  /** figure out pixel x/y space from the dom, chart space is transformed to within the axes
+   * bounds so it can have [0,0] as its starting coordinates */
+  const chartWidth = width - margin.left - margin.right - axesMargin.left - axesMargin.right;
+  const chartHeight = height - margin.top - margin.bottom - axesMargin.top - axesMargin.bottom;
+
   return {
-    /** figure out pixel x/y space from the dom, chart space is transformed to within the axes
-     * bounds so it can have [0,0] as its starting coordinates */
-    xScaleRange: [0, width - margin.left - margin.right - axesMargin.left - axesMargin.right],
-    yScaleRange: [height - margin.top - margin.bottom - axesMargin.top - axesMargin.bottom, 0],
+    chartWidth,
+    chartHeight,
+    xScaleRange: [0, chartWidth],
+    yScaleRange: [chartHeight, 0],
   };
 }
