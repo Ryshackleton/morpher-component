@@ -5,6 +5,7 @@ import * as render from './render';
 import {
   createIdTopoJsonFeatureMap,
   updatedStateFromChartRequest,
+  updatedProjection,
 } from './utils';
 
 import './scss/morpher.scss';
@@ -51,19 +52,44 @@ class Morpher extends D3Component {
     );
 
     const {
-      margin = defaultMargins.margin,
       axesMargin = defaultMargins.axesMargin,
+      margin = defaultMargins.margin,
+      locationIdField = 'location_id',
+      topology,
+      hideFeaturesWithNoData = true,
     } = props;
+
+    /* map of morphable id -> GeoJSON feature for quick lookup, as well as creating some
+       dummy objects with no data to enable rendering of all geometries if requested by setting
+       props.hideFeaturesWithNoData to false */
+    const {
+      // array of features to pass into projection
+      features,
+      // map of morphableId -> feature for quick lookup
+      idFeatureMap,
+      // array of dummy objects containing { morphableId, [locationIdField] }
+      // representing map features with no data
+      dummyMorphableData,
+    } = createIdTopoJsonFeatureMap(
+      morphableRawData,
+      topology,
+      locationIdField,
+      hideFeaturesWithNoData,
+    );
 
     /* chart state initially contains the id'd data, and a map of id -> topojson features */
     this.chartState = {
-      margin,
       axesMargin,
-      idFeatureMap: createIdTopoJsonFeatureMap(
-        morphableRawData,
-        props.topology,
-        props.locationIdField || 'location_id',
-      ),
+      // inner chart dimensions to detect when projection should update (initialize to zero)
+      chartWidth: 0,
+      chartHeight: 0,
+      dummyMorphableData,
+      features,
+      // boolean to determine whether map features lacking data should be displayed
+      hideFeaturesWithNoData,
+      idFeatureMap,
+      margin,
+      // the raw data, with morphableId
       morphableRawData,
     };
 
@@ -85,20 +111,44 @@ class Morpher extends D3Component {
    * @return {undefined}
    */
   morph() {
-    const { margin, axesMargin } = this.chartState;
+    const {
+      chartWidth: oldWidth,
+      chartHeight: oldHeight,
+      features,
+      margin,
+      axesMargin,
+      projection: oldProjection,
+    } = this.chartState;
 
     /* Get the axis ranges in pixel space */
-    const xyAxisRanges = render.getXYPixelRangesFromSVG(this.dom.svg, margin, axesMargin);
+    const {
+      chartWidth,
+      chartHeight,
+      ...xyAxisRanges
+    } = render.getXYPixelRangesFromSVG(this.dom.svg, margin, axesMargin)
 
     /* Update the svg group transforms */
     render.updateSVGTransforms(this.dom, margin, axesMargin);
+
+    /* IF the chart dimensions have changed, update map projection */
+    const projection = (chartWidth === oldWidth && chartHeight === oldHeight)
+      ? oldProjection
+      : updatedProjection({
+        morphablesDomGroup: this.dom.morphablesGroup,
+        chartWidth,
+        chartHeight,
+        features,
+      });
 
     /* Update state */
     this.chartState = {
       ...this.chartState,
       ...xyAxisRanges,
-      margin,
       axesMargin,
+      chartWidth,
+      chartHeight,
+      margin,
+      projection,
     };
 
     /* Use the new chart state to morph the chart model (map, scatter, bar, etc) */

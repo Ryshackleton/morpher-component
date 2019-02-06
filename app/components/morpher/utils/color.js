@@ -1,8 +1,11 @@
-import { get } from 'lodash';
+import { get, isNil } from 'lodash';
 import * as chromatic from 'd3-scale-chromatic';
 import { extent, scaleLinear, scaleOrdinal } from 'd3';
 import { values } from './data';
 import { linspace } from './math';
+import { defaults } from '../constants';
+
+const { DEFAULT_MISSING_COLOR } = defaults;
 
 /**
  * 11 step diverging color scale from ihme-ui
@@ -92,7 +95,8 @@ export const colorScaleProps = (props, seriesKeys, filtered, filteredById) => {
   };
 
   const colorFromId = (id) => {
-    return colorScale(colorValueFromId(id));
+    const val = colorValueFromId(id);
+    return isNil(val) ? DEFAULT_MISSING_COLOR : colorScale(val);
   };
 
   return {

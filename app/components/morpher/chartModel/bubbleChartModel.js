@@ -50,7 +50,6 @@ export default function bubbleChartModel(chartState) {
     colorFromId,
     dataFiltered,
     dataFilteredById,
-    filteredDataIds,
     seriesKeys,
     xScaleRange,
     yScaleRange,
@@ -111,26 +110,13 @@ export default function bubbleChartModel(chartState) {
 
   const radiusFromId = (id) => { return idRadiusMap[id]; };
 
-  const filteredNulls = filteredDataIds.reduce((acc, id) => {
-    if (
-      !(
-        isNil(radiusFromId(id))
-        && isNil(xFromId(id))
-        && isNil(yFromId(id))
-      )
-    ) {
-      acc.push(id);
-    }
-    return acc;
-  }, []);
-
   return {
     shape: chartShape.BUBBLE_SCATTER,
     colorValueFromId,
     colorScale,
     colorFromId,
+    dataFilteredById,
     seriesKeys,
-    filteredDataIds: filteredNulls,
     xValueFromId,
     xFromId,
     yValueFromId,

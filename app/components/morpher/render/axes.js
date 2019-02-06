@@ -87,4 +87,4 @@ export default function axes(dom, chartState) {
       fadeOutTransition(dom.yAxisLabel.selectAll('text'), transitionDuration);
     }
   }
-};
+}

@@ -28,6 +28,7 @@
     className: 'morpher'
     data: worldHappinessByYear
     topology: worldTopology
+    hideFeaturesWithNoData: false
     fullWidth: true
     locationIdField: 'loc_id'
     chartRequest: `{
@@ -50,7 +51,7 @@
         radiusRange: chartShape === 'BUBBLE_SCATTER' ? [5,5] : [5,20],
         hexRadius: 15,
         legendTitle: radius,
-        filterFunction:(datum) => {
+        filterDataFunction:(datum) => {
           return _.has(datum, 'loc_id')
             && datum.year === Number(focusYear)
             && _.has(datum, xAxis)

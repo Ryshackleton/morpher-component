@@ -1,6 +1,7 @@
 import { identity } from 'lodash';
 import { pathGenerator, pathInterpolator } from '../utils/path';
-import { css, defaults } from '../constants';
+import { values } from '../utils';
+import { chartShape, css, defaults } from '../constants';
 import { applyStyles, sortedSelection } from './util';
 
 const {
@@ -16,6 +17,7 @@ export default function chart(dom, chartState) {
     chartModel,
     chartModel: {
       shape,
+      dataFilteredById,
     },
     chartRequest,
     chartRequest: {
@@ -26,7 +28,8 @@ export default function chart(dom, chartState) {
       animationSortAscending = true,
       morphableOpacityFunction = 1,
     },
-    filteredDataIds = [],
+    dummyMorphableData,
+    hideFeaturesWithNoData,
   } = chartState;
   const { morphablesGroup } = dom;
 
@@ -39,8 +42,15 @@ export default function chart(dom, chartState) {
     }
     : transitionDelay;
 
+  // for the map, include all of the dummy objects so we render the whole map if the user
+  // has requested all geometries be displayed
+  const morphableIdsToRender = (shape === chartShape.MAP && !hideFeaturesWithNoData)
+    ? [...Object.keys(dataFilteredById), ...values(dummyMorphableData, 'morphableId')]
+    : Object.keys(dataFilteredById);
+
+
   const join = morphablesGroup.selectAll('path')
-    .data(filteredDataIds, identity);
+    .data(morphableIdsToRender, identity);
 
   join.exit()
     .transition()
