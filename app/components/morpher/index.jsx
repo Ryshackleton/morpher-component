@@ -59,9 +59,16 @@ class Morpher extends D3Component {
       hideFeaturesWithNoData = true,
     } = props;
 
+    /* map of morphable id -> GeoJSON feature for quick lookup, as well as creating some
+       dummy objects with no data to enable rendering of all geometries if requested by setting
+       props.hideFeaturesWithNoData to false */
     const {
+      // array of features to pass into projection
       features,
+      // map of morphableId -> feature for quick lookup
       idFeatureMap,
+      // array of dummy objects containing { morphableId, [locationIdField] }
+      // representing map features with no data
       dummyMorphableData,
     } = createIdTopoJsonFeatureMap(
       morphableRawData,
@@ -72,23 +79,18 @@ class Morpher extends D3Component {
 
     /* chart state initially contains the id'd data, and a map of id -> topojson features */
     this.chartState = {
-      // inner chart dimensions (initialize to zero)
+      axesMargin,
+      // inner chart dimensions to detect when projection should update (initialize to zero)
       chartWidth: 0,
       chartHeight: 0,
-      // margins
-      margin,
-      axesMargin,
-      // map of morphableId -> feature for quick lookup
-      idFeatureMap,
-      // array of features to pass into projection
+      dummyMorphableData,
       features,
-      // the raw data, with morphableId
-      morphableRawData,
       // boolean to determine whether map features lacking data should be displayed
       hideFeaturesWithNoData,
-      // array of dummy objects containing { morphableId, [locationIdField] }
-      // representing map features with no data
-      dummyMorphableData,
+      idFeatureMap,
+      margin,
+      // the raw data, with morphableId
+      morphableRawData,
     };
 
     /* build the svg DOM */
