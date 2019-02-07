@@ -1,4 +1,4 @@
-import { combine, splitPathString } from 'flubber';
+import { combine, interpolate, splitPathString } from 'flubber';
 import { select } from 'd3';
 import { removeNodeIfPathIsInvalid, validateArguments } from './util';
 import { defaults } from '../../constants';
@@ -48,14 +48,18 @@ export function hexagonInterpolator(chartModel) {
     const [isValid, result] = validateArguments(id, [xFromId, yFromId, radiusFromId]);
     const domNode = select(this);
     const dAttr = domNode.attr('d');
-    const paths = splitPathString(dAttr).slice(0, defaults.MAX_NUMBER_OF_PIECES_IN_PATH);
     const path = hexagon(...result);
-    return removeNodeIfPathIsInvalid(domNode, dAttr, isValid)
-      ? combine(
-        paths,
-        path,
-        defaults.FLUBBER_INTERPOLATE_OPTIONS,
-      )
-      : '';
+    const paths = splitPathString(dAttr).slice(0, defaults.MAX_NUMBER_OF_PIECES_IN_PATH);
+    try {
+      return removeNodeIfPathIsInvalid(domNode, dAttr, isValid)
+        ? combine(
+          paths,
+          path,
+          defaults.FLUBBER_INTERPOLATE_OPTIONS,
+        )
+        : '';
+    } catch (e) {
+      return interpolate(dAttr, path, defaults.FLUBBER_INTERPOLATE_OPTIONS);
+    }
   };
 }

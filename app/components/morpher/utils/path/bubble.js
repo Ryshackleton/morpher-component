@@ -1,5 +1,5 @@
 import { select } from 'd3';
-import { combine, splitPathString } from 'flubber';
+import { combine, interpolate, splitPathString } from 'flubber';
 import { removeNodeIfPathIsInvalid, validateArguments } from './util';
 import { defaults } from '../../constants';
 
@@ -42,10 +42,14 @@ export function bubbleInterpolator(chartModel) {
     const [isValid, result] = validateArguments(id, [xFromId, yFromId, radiusFromId]);
     const domNode = select(this);
     const dAttr = domNode.attr('d');
-    const paths = splitPathString(dAttr).slice(0, defaults.MAX_NUMBER_OF_PIECES_IN_PATH);
     const path = circlePath(...result);
-    return removeNodeIfPathIsInvalid(domNode, dAttr, isValid)
-      ? combine(paths, path, defaults.FLUBBER_INTERPOLATE_OPTIONS)
-      : '';
+    try {
+      const paths = splitPathString(dAttr).slice(0, defaults.MAX_NUMBER_OF_PIECES_IN_PATH);
+      return removeNodeIfPathIsInvalid(domNode, dAttr, isValid)
+        ? combine(paths, path, defaults.FLUBBER_INTERPOLATE_OPTIONS)
+        : '';
+    } catch (e) {
+      return interpolate(dAttr, path, defaults.FLUBBER_INTERPOLATE_OPTIONS);
+    }
   };
 }
