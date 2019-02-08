@@ -1,3 +1,4 @@
+import { debounce } from 'lodash';
 import elementResizeDetectorMaker from 'element-resize-detector';
 import D3Component from 'idyll-d3-component';
 import buildChartModel from './chartModel';
@@ -96,11 +97,20 @@ class Morpher extends D3Component {
     /* build the svg DOM */
     this.dom = render.initialSVG(parentNode);
     render.updateSVGTransforms(this.dom, margin, axesMargin);
+
+    /* setup resize listener to debounce the morph method and trigger a resize */
+    const doResize = true;
+    const debouncedMorph = debounce(
+      this.morph.bind(this, doResize),
+      300,
+      { trailing: true },
+    );
     elementResizeDetectorMaker({ strategy: 'scroll' })
-      .listenTo(parentNode, this.morph.bind(this));
+      .listenTo(parentNode, debouncedMorph); // morph and trigger resize
 
     /* initial update */
-    this.update(props);
+    this.updateChartState(props);
+    this.morph(doResize);
   }
 
   /**
@@ -108,9 +118,33 @@ class Morpher extends D3Component {
    * 1) Updates the sizing of the chart to handle any sizing changes,
    * 2) Rebuilds the chart model based on the this.chartState.chartRequest,
    * 3) Re-renders axes, the chart, and any legends per the chart request
+   * @param resize {boolean} - resize before updating if true
    * @return {undefined}
    */
-  morph() {
+  morph(resize = false) {
+    if (resize) {
+      this.resize();
+    }
+
+    /* Use the new chart state to morph the chart model (map, scatter, bar, etc) */
+    this.chartState.chartModel = buildChartModel(this.chartState);
+
+    /* re-render everything, morphing previous chart shapes from to the new shapes */
+    render.axes(this.dom, this.chartState);
+    render.chart(this.dom, this.chartState);
+    render.legends(this.dom, this.chartState);
+  }
+
+  /**
+   * Updates the svg transforms and the map projection based on the new size of the chart,
+   * and mutates this.chartState props dealing with layout such as:
+   * chartWidth
+   * chartHeight
+   * projection - (map projection)
+   * xScaleRange
+   * yScaleRange
+   */
+  resize() {
     const {
       chartWidth: oldWidth,
       chartHeight: oldHeight,
@@ -150,14 +184,6 @@ class Morpher extends D3Component {
       margin,
       projection,
     };
-
-    /* Use the new chart state to morph the chart model (map, scatter, bar, etc) */
-    this.chartState.chartModel = buildChartModel(this.chartState);
-
-    /* re-render everything, morphing previous chart shapes from to the new shapes */
-    render.axes(this.dom, this.chartState);
-    render.chart(this.dom, this.chartState);
-    render.legends(this.dom, this.chartState);
   }
 
   /**
@@ -165,14 +191,15 @@ class Morpher extends D3Component {
    * 1) filter the data,
    * 2) determine any series information and group data accordingly
    * 3) compute the requested color scale
-   * 4) call morph() to morph the chart model and update the UI
-   * @param props.chartRequest - the chart request object containing the chart spec
-   * @return {undefined}
+   * @param props - the chart request object containing the chart spec
+   * @param props.chartState - the chart state object containing all relevant props
+   * @param props.chartState.chartRequest {object} containing the chart spec for the new chart to build
+   * @return {boolean} true if chart state is valid and can be updated
    */
-  update(props = this.chartState /* , oldProps */) {
+  updateChartState(props) {
     const { chartRequest } = props;
     if (!this.chartState || !chartRequest) {
-      return;
+      return false;
     }
 
     /* filter the data based on the new chartRequest and compute shared props like color scales */
@@ -184,8 +211,19 @@ class Morpher extends D3Component {
       },
     );
 
-    /* compute the chart model and morph to the next chart shape */
-    this.morph();
+    return true;
+  }
+
+  /**
+   * Overloaded from D3Component to hook into React's component update cycle
+   * @param props {object} - props passed from Idyll markdown
+   * @param oldProps - passed by Idyll, not used
+   */
+  update(props = this.chartState /* , oldProps */) {
+    if (this.updateChartState(props)) {
+      /* compute the chart model and morph to the next chart shape */
+      this.morph();
+    }
   }
 }
 
