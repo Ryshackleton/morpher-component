@@ -1,3 +1,4 @@
+import { reduce } from 'lodash';
 import {
   event, geoIdentity, geoPath, geoTransform, zoom, zoomIdentity,
 } from 'd3';
@@ -142,7 +143,9 @@ export function buildProjectionAndZoom({ features, width, height }) {
 export function updatedProjection({
   chartWidth: width,
   chartHeight: height,
+  data,
   features,
+  idFeatureMap,
   morphablesDomGroup,
 }) {
   /** build and scale the projection from the width, height, and the selected features */
@@ -164,5 +167,18 @@ export function updatedProjection({
     )
     .call(zoomed);
 
-  return projection;
+  /** pre compute id -> centroids for tweening efficiency */
+  const idCentroidMap = reduce(data, (acc, { morphableId }) => {
+    acc[morphableId] = projection.path.centroid(idFeatureMap[morphableId]);
+    return acc;
+  }, {});
+  const xFromId = (id) => {
+    return idCentroidMap[id] ? idCentroidMap[id][0] : 0;
+  };
+  const yFromId = (id) => {
+    return idCentroidMap[id] ? idCentroidMap[id][1] : 0;
+  };
+
+
+  return { xFromId, yFromId, projection };
 }

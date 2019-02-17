@@ -3,7 +3,6 @@ import {
 } from 'lodash';
 import { extent, scaleLinear } from 'd3';
 import { chartShape } from '../constants';
-import mapChartModel from './mapChartModel';
 import { dataWithValidGetterFunctions, values } from '../utils';
 
 export default function bubbleCartogramChartModel(chartState, computeRadii = true) {
@@ -14,22 +13,10 @@ export default function bubbleCartogramChartModel(chartState, computeRadii = tru
     },
     dataFiltered,
     dataFilteredById,
-    projection,
-    idFeatureMap,
+    xFromId,
+    yFromId,
     ...rest
-  } = mapChartModel(chartState);
-
-  /** pre compute id -> centroids for tweening efficiency */
-  const idCentroidMap = reduce(dataFiltered, (acc, datum) => {
-    acc[datum.morphableId] = projection.path.centroid(idFeatureMap[datum.morphableId]);
-    return acc;
-  }, {});
-  const xFromId = (id) => {
-    return idCentroidMap[id] ? idCentroidMap[id][0] : 0;
-  };
-  const yFromId = (id) => {
-    return idCentroidMap[id] ? idCentroidMap[id][1] : 0;
-  };
+  } = chartState;
 
   let radiusFromId;
   const functionsThatShouldReturnNumbers = [xFromId, yFromId];

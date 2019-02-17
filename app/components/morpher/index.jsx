@@ -151,6 +151,8 @@ class Morpher extends D3Component {
       features,
       margin,
       axesMargin,
+      idFeatureMap,
+      morphableRawData,
       projection: oldProjection,
     } = this.chartState;
 
@@ -165,13 +167,15 @@ class Morpher extends D3Component {
     render.updateSVGTransforms(this.dom, margin, axesMargin);
 
     /* IF the chart dimensions have changed, update map projection */
-    const projection = (chartWidth === oldWidth && chartHeight === oldHeight)
+    const { xFromId, yFromId, projection } = (chartWidth === oldWidth && chartHeight === oldHeight)
       ? oldProjection
       : updatedProjection({
-        morphablesDomGroup: this.dom.morphablesGroup,
         chartWidth,
         chartHeight,
+        data: morphableRawData,
         features,
+        idFeatureMap,
+        morphablesDomGroup: this.dom.morphablesGroup,
       });
 
     /* Update state */
@@ -181,8 +185,12 @@ class Morpher extends D3Component {
       axesMargin,
       chartWidth,
       chartHeight,
+      idFeatureMap,
       margin,
+      morphableRawData,
       projection,
+      xFromId,
+      yFromId,
     };
   }
 
