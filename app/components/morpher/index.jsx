@@ -220,7 +220,7 @@ class Morpher extends D3Component {
    * @param oldProps - passed by Idyll, not used
    */
   update(props = this.chartState /* , oldProps */) {
-    if (props.chartRequest !== this.chartState.chartRequest && this.updateChartState(props)) {
+    if (this.updateChartState(props)) {
       /* compute the chart model and morph to the next chart shape */
       this.morph();
     }
