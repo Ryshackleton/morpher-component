@@ -98,6 +98,9 @@ class Morpher extends D3Component {
     this.dom = render.initialSVG(parentNode);
     render.updateSVGTransforms(this.dom, margin, axesMargin);
 
+    /* initial update */
+    this.updateChartState(props);
+
     /* setup resize listener to debounce the morph method and trigger a resize */
     const doResize = true;
     const debouncedMorph = debounce(
@@ -105,12 +108,9 @@ class Morpher extends D3Component {
       300,
       { trailing: true },
     );
+    /* element resize triggers morph upon creation */
     elementResizeDetectorMaker({ strategy: 'scroll' })
       .listenTo(parentNode, debouncedMorph); // morph and trigger resize
-
-    /* initial update */
-    this.updateChartState(props);
-    this.morph(doResize);
   }
 
   /**
@@ -220,7 +220,7 @@ class Morpher extends D3Component {
    * @param oldProps - passed by Idyll, not used
    */
   update(props = this.chartState /* , oldProps */) {
-    if (this.updateChartState(props)) {
+    if (props.chartRequest !== this.chartState.chartRequest && this.updateChartState(props)) {
       /* compute the chart model and morph to the next chart shape */
       this.morph();
     }
