@@ -1,7 +1,11 @@
 import worldTopo from './promises/worldTopology';
-import worldHappinessByYear from './promises/worldHappinessByYear';
+import usTopo from './promises/usTopologyAlbers';
+// import worldHappinessByYear from './promises/worldHappinessByYear';
+import policeShooting from './promises/policeShooting';
 
 export default {
-  worldTopology: worldTopo(),
-  worldHappinessByYear: worldHappinessByYear(),
+  policeShooting: policeShooting(),
+  usTopology: usTopo(),
+  // worldTopology: worldTopo(),
+  // worldHappinessByYear: worldHappinessByYear(),
 };

@@ -1,36 +1,35 @@
 
-[meta title:'Idyll Template' description:'Morpher with World Happiness data' /]
+[meta title:'Idyll Template' description:'Morpher with Police Shooting data' /]
 
-### Morpher with World Happiness data
+### Morpher with Police Shooting data
 
 // Initialize data
-[data name:'worldHappinessByYear' /]
-[data name:'worldTopology' /]
+[data name:'policeShooting' /]
+[data name:'usTopology' /]
 
 // Initialize variables 
 [var name:'chartShape' value:'MAP' /]
-[var name:'focusYear' value:'2016' /]
-[var name:'radius' value:'Log GDP per capita' /]
-[var name:'xAxis' value:'Log GDP per capita' /]
-[var name:'yAxis' value:'Life Ladder' /]
+[var name:'radius' value:'age' /]
+[var name:'xAxis' value:'age' /]
+[var name:'yAxis' value:'age' /]
 
 // Selectors
 [Select value:chartShape options:`['BUBBLE_SCATTER', 'BAR_VERTICAL', 'BAR_HORIZONTAL', 'MAP', 'BUBBLE_CARTOGRAM', 'BUBBLE_PACKED_CARTOGRAM', 'HEXAGONAL_CARTOGRAM']` /]
 
-[Select value:yAxis options:`Object.keys(worldHappinessByYear[0]).filter((d) => (d !== 'country' && d !== 'loc_id' && d !== 'year'))` /]
+[Select value:yAxis options:`Object.keys(policeShooting[0])` /]
 
-[Select value:xAxis options:`Object.keys(worldHappinessByYear[0]).filter((d) => (d !== 'country' && d !== 'loc_id' && d !== 'year'))` /] 
+[Select value:xAxis options:`Object.keys(policeShooting[0])` /] 
 
-[Select value:radius options:`Object.keys(worldHappinessByYear[0]).filter((d) => (d !== 'country' && d !== 'loc_id' && d !== 'year'))` /]
+[Select value:radius options:`Object.keys(policeShooting[0])` /]
 
 // Morpher component
 [Morpher
     className: 'morpher'
-    data: worldHappinessByYear
-    topology: worldTopology
-    hideFeaturesWithNoData: false
+    data: policeShooting 
+    topology: usTopology 
+    hideFeaturesWithNoData: true 
     fullWidth: true
-    locationIdField: 'loc_id'
+    locationIdField: 'location_id'
     chartRequest: `{
         shape: chartShape,
         morphableStrokeFunction: () => {
@@ -52,12 +51,9 @@
         hexRadius: 15,
         legendTitle: radius,
         filterDataFunction:(datum) => {
-          return _.has(datum, 'loc_id')
-            && datum.year === Number(focusYear)
-            && _.has(datum, xAxis)
-            && _.has(datum, yAxis);
+          return datum.age !== '' && datum.race === 'W';
          },
-        seriesField:'loc_id',
+        seriesField:'DeceasedArmedType',
         colorField:radius,
         xField:xAxis,
         yField:yAxis,
